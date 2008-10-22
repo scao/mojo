@@ -33,23 +33,16 @@ sub accept_unlock { return 1 }
 sub listen {
     my $self = shift;
 
-    # Windows doesn't support non blocking open
-    my $blocking = $^O eq 'MSWin32' ? 1 : 0;
-
     # Create socket
     my $port = $self->port;
     $self->{listen} ||= IO::Socket::INET->new(
-        Blocking  => $blocking,
         Listen    => $self->listen_queue_size,
         LocalPort => $port,
         Reuse     => 1
     ) or croak "Can't create listen socket: $!";
 
-    # Make socket non blocking on Windows
-    if ($^O eq 'MSWin32') { ioctl($self->{listen}, 0x8004667e, 1) }
-
-    # Make socket non blocking for everyone else
-    else { $self->{listen}->blocking(0) }
+    # Non blocking if we are on a real operating system
+    $self->{listen}->blocking(0) unless $^O eq 'MSWin32';
 
     # Friendly message
     print "Server available at http://127.0.0.1:$port.\n";
@@ -106,7 +99,7 @@ sub _prepare_connections {
         }
 
         # Connected
-        $accept->{socket}->blocking(0);
+        $accept->{socket}->blocking(0) unless $^O eq 'MSWin32';
         next unless my $name = $self->_socket_name($accept->{socket});
         $self->{_connections}->{$name} = $accept;
     }

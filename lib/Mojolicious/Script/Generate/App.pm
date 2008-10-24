@@ -74,7 +74,11 @@ L<Mojo::Script>.
 =head1 METHODS
 
 L<Mojolicious::Script::Generate::App> inherits all methods from
-L<Mojo::Script>.
+L<Mojo::Script> and implements the following new ones.
+
+=head2 C<run>
+
+    $app->run(@ARGV);
 
 =cut
 
@@ -106,7 +110,7 @@ eval 'use Mojolicious::Scripts';
 if ($@) {
     print <<EOF;
 It looks like you don't have the Mojo Framework installed.
-Please visit http://getmojo.kraih.com for detailed installation instructions.
+Please visit http://mojolicious.org for detailed installation instructions.
 
 EOF
     exit;
